@@ -42,6 +42,19 @@ def query_one(db_connection_meta, db_connection_virtual):
     # Execute the query to find documents of fridges at most 3 hours ago
     documents = db_connection_virtual.find(query)
 
+    # Calculate the average moisture inside the fridges in the past three hours
+    total_documents = 0
+    total_moisture = 0
+    
+    for doc in documents:
+        moisture = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
+        total_documents += 1
+        total_moisture += float(moisture)
+        
+    average_moisture = total_moisture / total_documents
+
+    return f"{average_moisture:.4f}"
+
 
 def run_server():
     # Input the port number and IP address

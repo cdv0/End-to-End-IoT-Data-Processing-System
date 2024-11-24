@@ -2,6 +2,27 @@ import socket
 import ipaddress
 import pymongo
 
+def query_one(db_connection):
+    # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
+
+    # Retrive all fridges uid from the Assignment 7_metadata collection
+    query_find_fridge1 = {
+        "customAttributes.name": "Device 1: Smart Refrigerator"
+    }
+    query_find_fridge3 = {
+        "customAttributes.name": "Device 3: Smart Refrigerator"
+    }
+
+    fridge1_document = db_connection.find_one(query_find_fridge1)
+    fridge3_document = db_connection.find_one(query_find_fridge3)
+
+    if fridge1_document and fridge3_document:
+        fridge1_uid = fridge1_document.get("assetUid")
+        fridge3_uid = fridge3_document.get("assetUid")
+        print(fridge1_uid, fridge3_uid)
+    else:
+        print("An error occurred retrieving the smart fridges uid.")
+
 def run_server():
     # Input the port number and IP address
     ipaddress = str(ipaddress.ip_address(input("Input the IP address: ")))

@@ -20,7 +20,7 @@ def run_server():
         while True:
             myData = incomingSocket.recv(numberOfBytes)  # Receive data from the client
             # If the message sent by the client is 'break', then exit out of the loop and close the connection
-            if (myData == 'break') or (not myData):
+            if (myData == '4'):
                 break
             print(f"Client message: {myData.decode()}")
             uppercaseData = myData.decode().upper()

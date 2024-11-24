@@ -19,7 +19,6 @@ def query_one(db_connection):
     if fridge1_document and fridge3_document:
         fridge1_uid = fridge1_document.get("assetUid")
         fridge3_uid = fridge3_document.get("assetUid")
-        print(fridge1_uid, fridge3_uid)
     else:
         print("An error occurred retrieving the smart fridges uid.")
 

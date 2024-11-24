@@ -39,6 +39,11 @@ def run_client(TCP_Socket):
     try:
         while True:
             query = queries()
+            
+            if query == '4':
+                print("Exiting...")
+                break
+
             TCP_Socket.send(bytearray(str(query), encoding='utf-8'))  # Sends message to the server as a byte array
             serverResponse = TCP_Socket.recv(maxBytesToReceive)  # The client waits for a response form the server
             print("Server reply:", serverResponse.decode())

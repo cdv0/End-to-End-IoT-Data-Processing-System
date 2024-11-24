@@ -39,3 +39,5 @@ if __name__ == "__main__":
     collection_metadata = db["Assignment 7_metadata"]
     collection_virtual = db["Assignment 7_virtual"]
     print("Selected database and collection successfully.")
+
+    run_server()

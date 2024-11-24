@@ -37,12 +37,12 @@ def run_client(TCP_Socket):
     maxBytesToReceive = 1024
     try:
         while True:
-            message = str(input("Input a message (type 'break' to quit): "))
+            query = queries()
             # Exit the while loop if there is no data sent or the message is 'break'
-            if (not message) or (message == 'break'):
+            if (not query) or (query == 'break'):
                 print("Exiting...")
                 break
-            TCP_Socket.send(bytearray(str(message), encoding='utf-8'))  # Sends message to the server as a byte array
+            TCP_Socket.send(bytearray(str(query), encoding='utf-8'))  # Sends message to the server as a byte array
             serverResponse = TCP_Socket.recv(maxBytesToReceive)  # The client waits for a response form the server
             print("Server reply:", serverResponse.decode())
     finally:

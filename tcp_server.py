@@ -1,6 +1,7 @@
 import socket
 import ipaddress
 import pymongo
+import datetime
 
 def query_one(db_connection_meta, db_connection_virtual):
     # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
@@ -18,6 +19,29 @@ def query_one(db_connection_meta, db_connection_virtual):
 
     fridge1_uid = fridge1_document.get("assetUid")
     fridge3_uid = fridge3_document.get("assetUid")
+
+    # Get current date and time (utc)
+    current_datetime = datetime.datetime.now(datetime.timezone.utc)
+
+    # Find the time 3 hours ago from the current datetime
+    time_3_hours_ago = current_datetime - datetime.timedelta(hours=3)
+
+    # Get a list of documents in the past 3 hours
+    query = (
+        {
+        "time": {
+            "$gt": time_3_hours_ago,
+            "$lt": current_datetime
+            },
+        "payload.parent_asset_uid": {
+            "$in": [fridge1_uid, fridge3_uid]
+            }
+        }
+    )
+
+    # Execute the query to find documents of fridges at most 3 hours ago
+    documents = db_connection_virtual.find(query)
+
 
 def run_server():
     # Input the port number and IP address

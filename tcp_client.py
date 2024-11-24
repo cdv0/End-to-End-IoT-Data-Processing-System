@@ -15,6 +15,24 @@ def connect_to_server():
             print(f"Error: Could not connect to the server. {e}")
 
 
+def queries():
+    valid_input = ['1', '2', '3']
+    user_input = None
+
+    while user_input not in valid_input:
+        print("Select one of the following three queries:")
+        print("1. What is the average moisture inside my kitchen fridge in the past three hours?")
+        print("2. What is the average water consumption per cycle in my smart dishwasher?")
+        print("3. Which device consumed more electricity among my three IoT devices (two refridgerators and a dishwasher?")
+
+        user_input = input("Select '1', '2', or '3': ")
+
+        if user_input not in valid_input:
+            print("Invalid input. Try again.\n")
+
+    return user_input
+
+
 def run_client(TCP_Socket):
     maxBytesToReceive = 1024
     try:
@@ -33,5 +51,7 @@ def run_client(TCP_Socket):
 
 
 if __name__ == "__main__":
-    tcp_socket = connect_to_server
-    run_client(tcp_socket)
+    # tcp_socket = connect_to_server
+    # run_client(tcp_socket)
+    test = queries()
+    print(test)

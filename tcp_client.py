@@ -53,7 +53,5 @@ def run_client(TCP_Socket):
 
 
 if __name__ == "__main__":
-    # tcp_socket = connect_to_server
-    # run_client(tcp_socket)
-    test = queries()
-    print(test)
+    tcp_socket = connect_to_server
+    run_client(tcp_socket)

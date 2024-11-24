@@ -2,7 +2,7 @@ import socket
 import ipaddress
 import pymongo
 
-def query_one(db_connection):
+def query_one(db_connection_meta, db_connection_virtual):
     # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
 
     # Retrive all fridges uid from the Assignment 7_metadata collection
@@ -13,8 +13,8 @@ def query_one(db_connection):
         "customAttributes.name": "Device 3: Smart Refrigerator"
     }
 
-    fridge1_document = db_connection.find_one(query_find_fridge1)
-    fridge3_document = db_connection.find_one(query_find_fridge3)
+    fridge1_document = db_connection_meta.find_one(query_find_fridge1)
+    fridge3_document = db_connection_meta.find_one(query_find_fridge3)
 
     if fridge1_document and fridge3_document:
         fridge1_uid = fridge1_document.get("assetUid")

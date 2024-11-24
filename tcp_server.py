@@ -27,30 +27,46 @@ def query_one(db_connection_meta, db_connection_virtual):
     time_3_hours_ago = current_datetime - datetime.timedelta(hours=3)
 
     # Get a list of documents in the past 3 hours
-    query = (
+    query_fridge1 = (
         {
         "time": {
             "$gt": time_3_hours_ago,
             "$lt": current_datetime
             },
-        "payload.parent_asset_uid": {
-            "$in": [fridge1_uid, fridge3_uid]
-            }
+        "payload.parent_asset_uid": fridge1_uid
+        }
+    )
+
+    query_fridge3 = (
+        {
+        "time": {
+            "$gt": time_3_hours_ago,
+            "$lt": current_datetime
+            },
+        "payload.parent_asset_uid": fridge3_uid
         }
     )
 
     # Execute the query to find documents of fridges at most 3 hours ago
-    documents = db_connection_virtual.find(query)
+    document_fridge1 = db_connection_virtual.find(query_fridge1)
+    document_fridge3 = db_connection_virtual.find(query_fridge3)
 
     # Calculate the average moisture inside the fridges in the past three hours
     total_documents = 0
     total_moisture = 0
     
-    for doc in documents:
-        moisture = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
-        total_documents += 1
-        total_moisture += float(moisture)
-        
+    for doc in document_fridge1:
+        moisture1 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 1")
+        if moisture1 is not None:
+            total_documents += 1
+            total_moisture += float(moisture1)
+
+    for doc in document_fridge3:
+        moisture3 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
+        if moisture3 is not None:
+            total_documents += 1
+            total_moisture += float(moisture3)
+    
     average_moisture = total_moisture / total_documents
 
     return f"{average_moisture:.4f}"

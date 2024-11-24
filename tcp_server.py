@@ -16,11 +16,8 @@ def query_one(db_connection_meta, db_connection_virtual):
     fridge1_document = db_connection_meta.find_one(query_find_fridge1)
     fridge3_document = db_connection_meta.find_one(query_find_fridge3)
 
-    if fridge1_document and fridge3_document:
-        fridge1_uid = fridge1_document.get("assetUid")
-        fridge3_uid = fridge3_document.get("assetUid")
-    else:
-        print("An error occurred retrieving the smart fridges uid.")
+    fridge1_uid = fridge1_document.get("assetUid")
+    fridge3_uid = fridge3_document.get("assetUid")
 
 def run_server():
     # Input the port number and IP address

@@ -1,5 +1,14 @@
 import socket
 import ipaddress
+import pymongo
+
+# Connect to MongoDB Cluster
+cluster = pymongo.MongoClient("mongodb+srv://cdvu01:pass123@cluster0.bwo1r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+print("Connected to MongoDB server successfully.")
+db = cluster["test"]
+collection_metadata = db["Assignment 7_metadata"]
+collection_virtual = db["Assignment 7_virtual"]
+print("Selected database and collection successfully.")
 
 # Input the port number and IP address
 ipaddress = str(ipaddress.ip_address(input("Input the IP address: ")))

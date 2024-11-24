@@ -16,7 +16,7 @@ def connect_to_server():
 
 
 def queries():
-    valid_input = ['1', '2', '3']
+    valid_input = ['1', '2', '3', '4']
     user_input = None
 
     while user_input not in valid_input:
@@ -24,8 +24,9 @@ def queries():
         print("1. What is the average moisture inside my kitchen fridge in the past three hours?")
         print("2. What is the average water consumption per cycle in my smart dishwasher?")
         print("3. Which device consumed more electricity among my three IoT devices (two refridgerators and a dishwasher?")
+        print("4. Exit the program.")
 
-        user_input = input("Select '1', '2', or '3': ")
+        user_input = input("Select '1', '2', '3', (type '4' to quit): ")
 
         if user_input not in valid_input:
             print("Invalid input. Try again.\n")

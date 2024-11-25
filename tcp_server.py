@@ -17,18 +17,8 @@ def query_one(db_connection_meta, db_connection_virtual):
     fridge1_document = db_connection_meta.find_one(query_find_fridge1)
     fridge3_document = db_connection_meta.find_one(query_find_fridge3)
 
-    fridge1_uid = fridge1_document.get("assetUid")
-    fridge3_uid = fridge3_document.get("assetUid")
-
-    # Get current date and time (utc)
-    current_datetime = datetime.datetime.now(datetime.timezone.utc)
-
-    # Find the time 3 hours ago from the current datetime
-    time_3_hours_ago = current_datetime - datetime.timedelta(hours=3)
-
-    # Get a list of documents in the past 3 hours
-    query_fridge1 = (
-        {
+    fridge1_uid = get_device_uid(db_connection_meta, "Device 1: Smart Refrigerator")
+    fridge3_uid = get_device_uid(db_connection_meta, "Device 3: Smart Refrigerator")
         "time": {
             "$gt": time_3_hours_ago,
             "$lt": current_datetime
@@ -76,9 +66,7 @@ def query_two(db_connection_meta, db_connection_virtual):
     # Query 2: What is the average moisture inside my kitchen fridge in the past three hours?
 
     # Find Uid if the dishwasher
-    query_find_dishwasher = { "customAttributes.name": "Device 2: Smart Dishwasher" }
-    dishwasher_document = db_connection_meta.find_one(query_find_dishwasher)
-    dishwasher_uid = dishwasher_document.get("assetUid")
+    dishwasher_uid = get_device_uid(db_connection_meta, "Device 2: Smart Dishwasher")
     
     # Get all documents whose parent Uid is the dishwasher Uid
     query_all_dishwasher = (

@@ -72,6 +72,38 @@ def query_one(db_connection_meta, db_connection_virtual):
     return f"{average_moisture:.4f}"
 
 
+def query_two(db_connection_meta, db_connection_virtual):
+    # Query 2: What is the average moisture inside my kitchen fridge in the past three hours?
+
+    # Find Uid if the dishwasher
+    query_find_dishwasher = { "customAttributes.name": "Device 2: Smart Dishwasher" }
+    dishwasher_document = db_connection_meta.find_one(query_find_dishwasher)
+    dishwasher_uid = dishwasher_document.get("assetUid")
+    
+    # Get all documents whose parent Uid is the dishwasher Uid
+    query_all_dishwasher = (
+        {
+            "payload.parent_asset_uid": dishwasher_uid
+        }
+    )
+
+    document_dishwasher = db_connection_virtual.find(query_all_dishwasher)
+
+    # Get the average water consumption value
+    total_waterconsumption = 0
+    total_documents = 0
+
+    for doc in document_dishwasher:
+        water_consumption = doc.get("payload", {}).get("Water Consumption Sensor")
+        if water_consumption is not None:
+            total_documents += 1
+            total_waterconsumption += float(water_consumption)
+    
+    average_waterconsumption = total_waterconsumption / total_documents
+
+    return f"{average_waterconsumption:.4f}"
+
+
 def run_server():
     # Input the port number and IP address
     ipaddress = str(ipaddress.ip_address(input("Input the IP address: ")))

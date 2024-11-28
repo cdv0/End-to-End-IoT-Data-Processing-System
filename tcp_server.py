@@ -148,8 +148,16 @@ def query_three(db_connection_meta, db_connection_virtual):
     return f"The device that used the most electricity is {max_device} with {max_value:.4f} amperes (A)."
 
 
-def run_server():
-    # Input the port number and IP address
+if __name__ == "__main__":
+    # Connect to MongoDB Cluster
+    cluster = pymongo.MongoClient("mongodb+srv://cdvu01:pass123@cluster0.bwo1r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    print("Connected to MongoDB server successfully.")
+    db = cluster["test"]
+    collection_metadata = db["Assignment 7_metadata"]
+    collection_virtual = db["Assignment 7_virtual"]
+    print("Selected database and collection successfully.")
+
+        # Input the port number and IP address
     ipaddress = str(ipaddress.ip_address(input("Input the IP address: ")))
     port = int(input("Input the port number of the server: "))
 
@@ -165,26 +173,23 @@ def run_server():
     try:
         while True:
             myData = incomingSocket.recv(numberOfBytes)  # Receive data from the client
-            # If the message sent by the client is 'break', then exit out of the loop and close the connection
-            if (myData == '4'):
+            # If the message sent by the client is '4', then exit out of the loop and close the connection
+            client_message = myData.decode()
+            print(f"Client message: {client_message}")
+            result = ''
+            if client_message == '4':
+                print("Closing the server..")
                 break
-            print(f"Client message: {myData.decode()}")
-            uppercaseData = myData.decode().upper()
+            elif client_message == '1':
+                result = query_one(collection_metadata, collection_virtual)
+            elif client_message == '2':
+                result = query_two(collection_metadata, collection_virtual)
+            else:
+                result = query_three(collection_metadata, collection_virtual)
             # Send back the modified data as a byte array
-            incomingSocket.send(bytearray(str(uppercaseData), encoding='utf-8'))
+            incomingSocket.send(bytearray(str(result), encoding='utf-8'))
     finally:
         # Close the socket
         incomingSocket.close()
         print("")
         print("Connection with the client is now closed.")
-
-if __name__ == "__main__":
-    # Connect to MongoDB Cluster
-    cluster = pymongo.MongoClient("mongodb+srv://cdvu01:pass123@cluster0.bwo1r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    print("Connected to MongoDB server successfully.")
-    db = cluster["test"]
-    collection_metadata = db["Assignment 7_metadata"]
-    collection_virtual = db["Assignment 7_virtual"]
-    print("Selected database and collection successfully.")
-
-    run_server()

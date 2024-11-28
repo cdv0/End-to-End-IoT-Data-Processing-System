@@ -1,6 +1,6 @@
 # Build an End to End IoT System
 
-This project demonstrates a basic client-server communication using TCP protocol and interaction wiht a MongoDB database. The server listens for incoming connections from the client, processes queries, and communicates with the MongoDB database. The client sends requests to the server and receives responses. 
+This project demonstrates a basic client-server communication using TCP protocol and interaction with a MongoDB database. The server listens for incoming connections from the client, processes queries, and communicates with MongoDB. The client sends requests to the server and receives responses. 
 
 ## Getting Started
 

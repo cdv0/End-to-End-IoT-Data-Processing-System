@@ -3,22 +3,33 @@ import ipaddress
 import pymongo
 import datetime
 
+
+def get_device_uid(db_connection_meta, device_name):
+    query = {
+        "customAttributes.name": device_name
+    }
+
+    document = db_connection_meta.find_one(query)
+
+    return document.get("assetUid")
+
+
 def query_one(db_connection_meta, db_connection_virtual):
     # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
 
     # Retrive all fridges uid from the Assignment 7_metadata collection
-    query_find_fridge1 = {
-        "customAttributes.name": "Device 1: Smart Refrigerator"
-    }
-    query_find_fridge3 = {
-        "customAttributes.name": "Device 3: Smart Refrigerator"
-    }
-
-    fridge1_document = db_connection_meta.find_one(query_find_fridge1)
-    fridge3_document = db_connection_meta.find_one(query_find_fridge3)
-
     fridge1_uid = get_device_uid(db_connection_meta, "Device 1: Smart Refrigerator")
     fridge3_uid = get_device_uid(db_connection_meta, "Device 3: Smart Refrigerator")
+
+    # Get current date and time (utc)
+    current_datetime = datetime.datetime.now(datetime.timezone.utc)
+
+    # Find the time 3 hours ago from the current datetime
+    time_3_hours_ago = current_datetime - datetime.timedelta(hours=3)
+
+    # Get a list of documents in the past 3 hours
+    query_fridge1 = (
+        {
         "time": {
             "$gt": time_3_hours_ago,
             "$lt": current_datetime

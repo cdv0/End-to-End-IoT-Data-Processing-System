@@ -10,6 +10,7 @@ def connect_to_server():
             TCP_Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Create a TCP socket
             TCP_Socket.connect(
                 (serverIP, serverPort))  # Connect to the server using the server's IP address and port number
+            print("Connected to the server!\n")
             return TCP_Socket
         except (ValueError, socket.error) as e:
             print(f"Error: Could not connect to the server. {e}")
@@ -23,10 +24,11 @@ def queries():
         print("Select one of the following three queries:")
         print("1. What is the average moisture inside my kitchen fridge in the past three hours?")
         print("2. What is the average water consumption per cycle in my smart dishwasher?")
-        print("3. Which device consumed more electricity among my three IoT devices (two refridgerators and a dishwasher?")
+        print("3. Which device consumed more electricity among my three IoT devices (two refrigerators and a dishwasher)?")
         print("4. Exit the program.")
 
         user_input = str(input("Select '1', '2', '3', (type '4' to quit): "))
+        print("")
 
         if user_input not in valid_input:
             print("Invalid input. Try again.\n")
@@ -45,13 +47,15 @@ def run_client(TCP_Socket):
                 break
 
             TCP_Socket.send(bytearray(str(query), encoding='utf-8'))  # Sends message to the server as a byte array
+            print(f"Message sent: {query}")
             serverResponse = TCP_Socket.recv(maxBytesToReceive)  # The client waits for a response form the server
             print("Server reply:", serverResponse.decode())
+            print("")
     finally:
         TCP_Socket.close()  # Close the socket
         print("Connection with the server is now closed.")
 
 
 if __name__ == "__main__":
-    tcp_socket = connect_to_server
+    tcp_socket = connect_to_server()
     run_client(tcp_socket)

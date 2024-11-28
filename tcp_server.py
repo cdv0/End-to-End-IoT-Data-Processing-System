@@ -74,7 +74,7 @@ def query_one(db_connection_meta, db_connection_virtual):
 
 
 def query_two(db_connection_meta, db_connection_virtual):
-    # Query 2: What is the average moisture inside my kitchen fridge in the past three hours?
+    # Query 2: What is the average water consumption per cycle in my smart dishwasher?
 
     # Find Uid if the dishwasher
     dishwasher_uid = get_device_uid(db_connection_meta, "Device 2: Smart Dishwasher")

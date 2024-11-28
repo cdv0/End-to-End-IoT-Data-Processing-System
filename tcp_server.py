@@ -3,12 +3,6 @@ import ipaddress
 import pymongo
 import datetime
 
-class Node:
-    def __init__(self, data):
-        self.left = None
-        self.right = None
-        self.data = data
-
 
 def get_device_uid(db_connection_meta, device_name):
     query = {

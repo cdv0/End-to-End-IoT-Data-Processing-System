@@ -26,7 +26,7 @@ def queries():
         print("3. Which device consumed more electricity among my three IoT devices (two refridgerators and a dishwasher?")
         print("4. Exit the program.")
 
-        user_input = input("Select '1', '2', '3', (type '4' to quit): ")
+        user_input = str(input("Select '1', '2', '3', (type '4' to quit): "))
 
         if user_input not in valid_input:
             print("Invalid input. Try again.\n")

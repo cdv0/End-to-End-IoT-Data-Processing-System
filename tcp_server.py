@@ -70,7 +70,7 @@ def query_one(db_connection_meta, db_connection_virtual):
     
     average_moisture = total_moisture / total_documents
 
-    return f"{average_moisture:.4f}"
+    return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.4f}." # ADD UNITS
 
 
 def query_two(db_connection_meta, db_connection_virtual):
@@ -100,7 +100,7 @@ def query_two(db_connection_meta, db_connection_virtual):
     
     average_waterconsumption = total_waterconsumption / total_documents
 
-    return f"{average_waterconsumption:.4f}"
+    return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f}." #ADD UNITS
 
 
 def query_three(db_connection_meta, db_connection_virtual):
@@ -145,7 +145,7 @@ def query_three(db_connection_meta, db_connection_virtual):
     else:
         max_device = "Device 3: Smart Refrigerator"
     
-    return f"Device that used the most electricity: {max_device} with {max_value:.4f} amperes (A)."
+    return f"The device that used the most electricity is {max_device} with {max_value:.4f} amperes (A)."
 
 
 def run_server():
@@ -159,7 +159,7 @@ def run_server():
     TCP_Socket.listen(5)  # Allows the server to listen for any incoming connections
     print("Server is listening..")
     incomingSocket, incomingAddress = TCP_Socket.accept()  # Accept a connection from a client
-    print(f"Connection from {incomingAddress} has been established.")
+    print(f"Connection from {incomingAddress} has been established.\n")
     numberOfBytes = 1024
 
     try:
@@ -175,6 +175,7 @@ def run_server():
     finally:
         # Close the socket
         incomingSocket.close()
+        print("")
         print("Connection with the client is now closed.")
 
 if __name__ == "__main__":

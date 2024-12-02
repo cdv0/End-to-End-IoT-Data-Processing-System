@@ -157,13 +157,13 @@ if __name__ == "__main__":
     collection_virtual = db["Assignment 7_virtual"]
     print("Selected database and collection successfully.")
 
-        # Input the port number and IP address
-    ipaddress = str(ipaddress.ip_address(input("Input the IP address: ")))
-    port = int(input("Input the port number of the server: "))
-
     print("Initializing Server")
     TCP_Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Create the TCP socket
-    TCP_Socket.bind((ipaddress, port))  # Bind the socket to an address and port number
+    hostname = socket.gethostname()
+    ipaddress = socket.gethostbyname(hostname)
+    TCP_Socket.bind((ipaddress, 0))  # Bind the socket to an address and available port number
+    port = TCP_Socket.getsockname()[1] # Dynamically get the port number
+    print(f"Server is running on IP {ipaddress} and Port {port}")
     TCP_Socket.listen(5)  # Allows the server to listen for any incoming connections
     print("Server is listening..")
     incomingSocket, incomingAddress = TCP_Socket.accept()  # Accept a connection from a client

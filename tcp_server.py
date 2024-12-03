@@ -66,6 +66,10 @@ def query_one(metadata_list, db_connection_virtual):
     # Store query results into a list
     results = list(documents_fridge1) + list(documents_fridge3)
 
+    # Define raw data range (factory settings)
+    RAW_MIN = 0
+    RAW_MAX = 40
+
     # Calculate the average moisture inside the fridges in the past three hours
     total_documents = 0
     total_moisture = 0
@@ -73,12 +77,16 @@ def query_one(metadata_list, db_connection_virtual):
     for doc in results:
         moisture1 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 1")
         moisture3 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
+        # Convert raw data to RH% using the scaling formula
         if moisture1 is not None:
+            rh1 = (float(moisture1) - RAW_MIN) / (RAW_MAX - RAW_MIN) * 100
             total_documents += 1
-            total_moisture += float(moisture1)
+            total_moisture += rh1
+
         if moisture3 is not None:
+            rh3 = (float(moisture3) - RAW_MIN) / (RAW_MAX - RAW_MIN) * 100
             total_documents += 1
-            total_moisture += float(moisture3)
+            total_moisture += rh3
 
     if total_documents == 0:
         return "There is no moisture data available for my kitchen fridge in the past three hours."
@@ -103,19 +111,27 @@ def query_two(metadata_list, db_connection_virtual):
 
     document_dishwasher = list(db_connection_virtual.find(query_all_dishwasher))
 
+    # Calibration factor: Pulses per gallon
+    PULSES_PER_GALLON = 1682.43
+
     # Get the average water consumption value
-    total_waterconsumption = 0
+    total_water_consumption = 0
     total_documents = 0
 
     for doc in document_dishwasher:
-        water_consumption = doc.get("payload", {}).get("Water Consumption Sensor")
-        if water_consumption is not None:
+        pulses_per_minute = doc.get("payload", {}).get("Water Consumption Sensor")
+        if pulses_per_minute is not None:
+            # Convert pulses per minute to GPM
+            gpm = float(pulses_per_minute) / PULSES_PER_GALLON
             total_documents += 1
-            total_waterconsumption += float(water_consumption)
+            total_water_consumption += gpm
     
-    average_waterconsumption = total_waterconsumption / total_documents
+    if total_documents == 0:
+        return "No water consumption data available for the smart dishwasher."
+    
+    average_waterconsumption = total_water_consumption / total_documents
 
-    return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f}." #ADD UNITS
+    return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f} gallons per minute." #ADD UNITS
 
 
 def query_three(metadata_list, db_connection_virtual):

@@ -2,24 +2,34 @@ import socket
 import ipaddress
 import pymongo
 import datetime
+from binary_tree import BinaryTree
+
+def populate_metadata_bt(db_connection_meta):
+    bt = BinaryTree()
+    for record in db_connection_meta.find():
+        device_name = record.get("customAttributes", {}).get("name")
+        metadata = {
+            "assetUid": record.get("assetUid"),
+            "generationDate": record.get("customAttributes", {}).get("generationDate"),
+            "name": record.get("customAttributes", {}).get("name")
+        }
+        # Only add the metadata if the device name exists
+        if device_name:
+            bt.insert(device_name, metadata)
+    return bt
 
 
-def get_device_uid(db_connection_meta, device_name):
-    query = {
-        "customAttributes.name": device_name
-    }
-
-    document = db_connection_meta.find_one(query)
-
-    return document.get("assetUid")
+def get_device_uid(metadata_bt, device_name):
+    metadata = metadata_bt.search(device_name)
+    return metadata.get("assetUid")
 
 
-def query_one(db_connection_meta, db_connection_virtual):
+def query_one(metadata_bt, db_connection_virtual):
     # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
 
     # Retrive all fridges uid from the Assignment 7_metadata collection
-    fridge1_uid = get_device_uid(db_connection_meta, "Device 1: Smart Refrigerator")
-    fridge3_uid = get_device_uid(db_connection_meta, "Device 3: Smart Refrigerator")
+    fridge1_uid = get_device_uid(metadata_bt, "Device 1: Smart Refrigerator")
+    fridge3_uid = get_device_uid(metadata_bt, "Device 3: Smart Refrigerator")
 
     # Get current date and time (utc)
     current_datetime = datetime.datetime.now(datetime.timezone.utc)
@@ -73,11 +83,11 @@ def query_one(db_connection_meta, db_connection_virtual):
     return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.4f}." # ADD UNITS
 
 
-def query_two(db_connection_meta, db_connection_virtual):
+def query_two(metadata_bt, db_connection_virtual):
     # Query 2: What is the average water consumption per cycle in my smart dishwasher?
 
     # Find Uid if the dishwasher
-    dishwasher_uid = get_device_uid(db_connection_meta, "Device 2: Smart Dishwasher")
+    dishwasher_uid = get_device_uid(metadata_bt, "Device 2: Smart Dishwasher")
     
     # Get all documents whose parent Uid is the dishwasher Uid
     query_all_dishwasher = (
@@ -103,13 +113,13 @@ def query_two(db_connection_meta, db_connection_virtual):
     return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f}." #ADD UNITS
 
 
-def query_three(db_connection_meta, db_connection_virtual):
+def query_three(metadata_bt, db_connection_virtual):
     # Query 3: Which device consumed more electricity among my three IoT devices (two refrigerators and a dishwasher)?
 
     # Get all device uid
-    device1_fridge_uid = get_device_uid(db_connection_meta, "Device 1: Smart Refrigerator")
-    device2_dishwasher_uid = get_device_uid(db_connection_meta, "Device 2: Smart Dishwasher")
-    device3_fridge_uid = get_device_uid(db_connection_meta, "Device 3: Smart Refrigerator")
+    device1_fridge_uid = get_device_uid(metadata_bt, "Device 1: Smart Refrigerator")
+    device2_dishwasher_uid = get_device_uid(metadata_bt, "Device 2: Smart Dishwasher")
+    device3_fridge_uid = get_device_uid(metadata_bt, "Device 3: Smart Refrigerator")
 
     # Get a list of all data
     documents = db_connection_virtual.find({})
@@ -157,6 +167,10 @@ if __name__ == "__main__":
     collection_virtual = db["Assignment 7_virtual"]
     print("Selected database and collection successfully.")
 
+    print("Populating metadata into binary tree...")
+    metadata = populate_metadata_bt(collection_metadata)
+    print("Metadata population successful.")
+
     print("Initializing Server")
     TCP_Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Create the TCP socket
     hostname = socket.gethostname()
@@ -181,11 +195,11 @@ if __name__ == "__main__":
                 print("Closing the server..")
                 break
             elif client_message == '1':
-                result = query_one(collection_metadata, collection_virtual)
+                result = query_one(metadata, collection_virtual)
             elif client_message == '2':
-                result = query_two(collection_metadata, collection_virtual)
+                result = query_two(metadata, collection_virtual)
             else:
-                result = query_three(collection_metadata, collection_virtual)
+                result = query_three(metadata, collection_virtual)
             # Send back the modified data as a byte array
             incomingSocket.send(bytearray(str(result), encoding='utf-8'))
     finally:

@@ -49,7 +49,7 @@ TO DO:
 Step 1 (DONE)
 
 Step 2 
-- Units and conversions (Use fahrenheit for temperature, PT instead of UTC, etc.) (see assignment for more)
+- Units and conversions (Use fahrenheit for temperature, PST instead of UTC, etc.) (see assignment for more)
     - Note: Database stores timestamp in UTC
 - Double check calculations and conversions (e.g. Query three only adds up positive electricity from the sensor and ignores the negative. Is this a good approach?)
 - Add units to the query results in tcp_server.py

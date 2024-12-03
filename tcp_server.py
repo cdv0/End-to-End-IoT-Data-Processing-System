@@ -92,7 +92,7 @@ def query_one(metadata_list, db_connection_virtual):
         
     average_moisture = total_moisture / total_documents
 
-    return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.2f}% RH." # ADD UNITS
+    return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.2f}% RH."
 
 
 def query_two(metadata_list, db_connection_virtual):
@@ -110,27 +110,36 @@ def query_two(metadata_list, db_connection_virtual):
 
     document_dishwasher = list(db_connection_virtual.find(query_all_dishwasher))
 
-    # Calibration factor: Pulses per gallon
-    PULSES_PER_GALLON = 1682.43
+    # Constants
+    RAW_MIN = 0  # Default minimum value for the sensor
+    RAW_MAX = 30  # Default maximum value for the sensor
+    LITERS_MAX = 30  # Max liters per minute (L/min) for the sensor
+    GALLONS_PER_LITER = 0.264172  # Conversion factor from liters to gallons
 
     # Get the average water consumption value
     total_water_consumption = 0
     total_documents = 0
 
     for doc in document_dishwasher:
-        pulses_per_minute = doc.get("payload", {}).get("Water Consumption Sensor")
-        if pulses_per_minute is not None:
-            # Convert pulses per minute to GPM
-            gpm = float(pulses_per_minute) / PULSES_PER_GALLON
-            total_documents += 1
-            total_water_consumption += gpm
+        raw_value = doc.get("payload", {}).get("YF-S201 - Water Consumption Sensor")
+
+        if raw_value is not None:
+            try:
+                # Convert raw value to L/min
+                liters_per_minute = (float(raw_value) - RAW_MIN) / (RAW_MAX - RAW_MIN) * LITERS_MAX
+                # Convert L/min to GPM
+                gpm = liters_per_minute * GALLONS_PER_LITER
+                total_documents += 1
+                total_water_consumption += gpm
+            except ValueError:
+                continue
     
     if total_documents == 0:
         return "No water consumption data available for the smart dishwasher."
     
-    average_waterconsumption = total_water_consumption / total_documents
+    average_water_consumption = total_water_consumption / total_documents
 
-    return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f} gallons per minute." #ADD UNITS
+    return f"The average water consumption per cycle in my smart dishwasher is {average_water_consumption:.2f} gallons per minute."
 
 
 def query_three(metadata_list, db_connection_virtual):
@@ -144,14 +153,19 @@ def query_three(metadata_list, db_connection_virtual):
     # Get a list of all data
     documents = list(db_connection_virtual.find({}))
 
+    # Constants
+    VOLTAGE = 120  # Assumed standard household voltage in volts
+    TIME_HOURS = 1  # Assumed time period of 1 hour per record (adjust as needed)
+
     # Total the ammeter values for each device
-    device1_total = 0
-    device2_total = 0
-    device3_total = 0
+    device1_total_amps = 0
+    device2_total_amps = 0
+    device3_total_amps = 0
 
     for doc in documents:
         doc_uid = doc.get("payload", {}).get("parent_asset_uid")
         if doc_uid is not None:
+            #IDK WHY IT IS NOT READING THESE VALUES FOR AMMETER
             ammeter1 = float(doc.get("payload", {}).get("Ammeter", 0.0))
             ammeter2 = float(doc.get("payload", {}).get("Ammeter 2", 0.0))
             ammeter3 = float(doc.get("payload", {}).get("Ammeter 3", 0.0))
@@ -159,23 +173,28 @@ def query_three(metadata_list, db_connection_virtual):
             # Only sum up positive ammeter values, where a positive value indicates it's using electricity
             # A negative ammeter value means it's returning electricity, so ignore negative values
             if (device1_fridge_uid == doc_uid) and (ammeter1 > 0):
-                device1_total += ammeter1
+                device1_total_amps += ammeter1
             elif (device2_dishwasher_uid == doc_uid) and (ammeter2 > 0):
-                device2_total += ammeter2
+                device2_total_amps += ammeter2
             elif (device3_fridge_uid == doc_uid) and (ammeter3 > 0):
-                device3_total += ammeter3
+                device3_total_amps += ammeter3
+    
+    # Convert total amperes to kWh
+    device1_kwh = (device1_total_amps * VOLTAGE * TIME_HOURS) / 1000
+    device2_kwh = (device2_total_amps * VOLTAGE * TIME_HOURS) / 1000
+    device3_kwh = (device3_total_amps * VOLTAGE * TIME_HOURS) / 1000
     
     # Determine which device used the most electricity
-    max_value = max(device1_total, device2_total, device3_total)
+    max_value = max(device1_kwh, device2_kwh, device3_kwh)
 
-    if max_value == device1_total:
+    if max_value == device1_kwh:
         max_device = "Device 1: Smart Refrigerator"
-    elif max_value == device2_total:
+    elif max_value == device2_kwh:
         max_device = "Device 2: Smart Dishwasher"
     else:
         max_device = "Device 3: Smart Refrigerator"
     
-    return f"The device that used the most electricity is {max_device} with {max_value:.4f} amperes (A)."
+    return f"The device that used the most electricity is {max_device} with {max_value:.4f} kWh."
 
 
 if __name__ == "__main__":

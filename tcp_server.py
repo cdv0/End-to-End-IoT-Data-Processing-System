@@ -4,8 +4,8 @@ import pymongo
 import datetime
 from binary_tree import BinaryTree
 
-def populate_metadata_bt(db_connection_meta):
-    bt = BinaryTree()
+def populate_metadata(db_connection_meta):
+    metadata_list = []
     for record in db_connection_meta.find():
         device_name = record.get("customAttributes", {}).get("name")
         metadata = {
@@ -15,21 +15,22 @@ def populate_metadata_bt(db_connection_meta):
         }
         # Only add the metadata if the device name exists
         if device_name:
-            bt.insert(device_name, metadata)
-    return bt
+            metadata_list.append(metadata)
+    return metadata_list
 
 
-def get_device_uid(metadata_bt, device_name):
-    metadata = metadata_bt.search(device_name)
-    return metadata.get("assetUid")
+def get_device_uid(metadata_list, device_name):
+    for metadata in metadata_list:
+        if metadata.get("name") == device_name:
+            return metadata.get("assetUid")
 
 
-def query_one(metadata_bt, db_connection_virtual):
+def query_one(metadata_list, db_connection_virtual):
     # Query 1: What is the average moisture inside my kitchen fridge in the past three hours?
 
     # Retrive all fridges uid from the Assignment 7_metadata collection
-    fridge1_uid = get_device_uid(metadata_bt, "Device 1: Smart Refrigerator")
-    fridge3_uid = get_device_uid(metadata_bt, "Device 3: Smart Refrigerator")
+    fridge1_uid = get_device_uid(metadata_list, "Device 1: Smart Refrigerator")
+    fridge3_uid = get_device_uid(metadata_list, "Device 3: Smart Refrigerator")
 
     # Get current date and time (utc)
     current_datetime = datetime.datetime.now(datetime.timezone.utc)
@@ -59,35 +60,39 @@ def query_one(metadata_bt, db_connection_virtual):
     )
 
     # Execute the query to find documents of fridges at most 3 hours ago
-    document_fridge1 = db_connection_virtual.find(query_fridge1)
-    document_fridge3 = db_connection_virtual.find(query_fridge3)
+    documents_fridge1 = db_connection_virtual.find(query_fridge1)
+    documents_fridge3 = db_connection_virtual.find(query_fridge3)
+
+    # Store query results into a list
+    results = list(documents_fridge1) + list(documents_fridge3)
 
     # Calculate the average moisture inside the fridges in the past three hours
     total_documents = 0
     total_moisture = 0
     
-    for doc in document_fridge1:
+    for doc in results:
         moisture1 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 1")
+        moisture3 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
         if moisture1 is not None:
             total_documents += 1
             total_moisture += float(moisture1)
-
-    for doc in document_fridge3:
-        moisture3 = doc.get("payload", {}).get("Moisture Meter - Moisture Meter 3")
         if moisture3 is not None:
             total_documents += 1
             total_moisture += float(moisture3)
-    
+
+    if total_documents == 0:
+        return "There is no moisture data available for my kitchen fridge in the past three hours."
+        
     average_moisture = total_moisture / total_documents
 
     return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.4f}." # ADD UNITS
 
 
-def query_two(metadata_bt, db_connection_virtual):
+def query_two(metadata_list, db_connection_virtual):
     # Query 2: What is the average water consumption per cycle in my smart dishwasher?
 
     # Find Uid if the dishwasher
-    dishwasher_uid = get_device_uid(metadata_bt, "Device 2: Smart Dishwasher")
+    dishwasher_uid = get_device_uid(metadata_list, "Device 2: Smart Dishwasher")
     
     # Get all documents whose parent Uid is the dishwasher Uid
     query_all_dishwasher = (
@@ -96,7 +101,7 @@ def query_two(metadata_bt, db_connection_virtual):
         }
     )
 
-    document_dishwasher = db_connection_virtual.find(query_all_dishwasher)
+    document_dishwasher = list(db_connection_virtual.find(query_all_dishwasher))
 
     # Get the average water consumption value
     total_waterconsumption = 0
@@ -113,16 +118,16 @@ def query_two(metadata_bt, db_connection_virtual):
     return f"The average water consumption per cycle in my smart dishwasher is {average_waterconsumption:.4f}." #ADD UNITS
 
 
-def query_three(metadata_bt, db_connection_virtual):
+def query_three(metadata_list, db_connection_virtual):
     # Query 3: Which device consumed more electricity among my three IoT devices (two refrigerators and a dishwasher)?
 
     # Get all device uid
-    device1_fridge_uid = get_device_uid(metadata_bt, "Device 1: Smart Refrigerator")
-    device2_dishwasher_uid = get_device_uid(metadata_bt, "Device 2: Smart Dishwasher")
-    device3_fridge_uid = get_device_uid(metadata_bt, "Device 3: Smart Refrigerator")
+    device1_fridge_uid = get_device_uid(metadata_list, "Device 1: Smart Refrigerator")
+    device2_dishwasher_uid = get_device_uid(metadata_list, "Device 2: Smart Dishwasher")
+    device3_fridge_uid = get_device_uid(metadata_list, "Device 3: Smart Refrigerator")
 
     # Get a list of all data
-    documents = db_connection_virtual.find({})
+    documents = list(db_connection_virtual.find({}))
 
     # Total the ammeter values for each device
     device1_total = 0
@@ -167,9 +172,9 @@ if __name__ == "__main__":
     collection_virtual = db["Assignment 7_virtual"]
     print("Selected database and collection successfully.")
 
-    print("Populating metadata into binary tree...")
-    metadata = populate_metadata_bt(collection_metadata)
-    print("Metadata population successful.")
+    print("Populating metadata into a list...")
+    metadata = populate_metadata(collection_metadata)
+    print("Task successful.")
 
     print("Initializing Server")
     TCP_Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Create the TCP socket

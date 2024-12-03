@@ -39,8 +39,10 @@ class BinaryTree:
         return self._search(self.root, key)
     
     def _search(self, current, key):
-        if current is None or current.key == key:
-            return current
+        if current is None:
+            return None
+        if current.key == key:
+            return current.value
         elif key < current.key:
             return self._search(current.left, key)
         else:

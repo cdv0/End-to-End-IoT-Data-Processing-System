@@ -84,7 +84,7 @@ def query_one(metadata_list, db_connection_virtual):
         
     average_moisture = total_moisture / total_documents
 
-    return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.4f}." # ADD UNITS
+    return f"The average moisture inside my kitchen fridge in the past three hours is {average_moisture:.2f}% RH." # ADD UNITS
 
 
 def query_two(metadata_list, db_connection_virtual):

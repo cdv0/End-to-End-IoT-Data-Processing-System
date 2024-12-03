@@ -2,7 +2,6 @@ import socket
 import ipaddress
 import pymongo
 import datetime
-from binary_tree import BinaryTree
 
 def populate_metadata(db_connection_meta):
     metadata_list = []

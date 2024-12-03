@@ -166,8 +166,8 @@ def query_three(metadata_list, db_connection_virtual):
         doc_uid = doc.get("payload", {}).get("parent_asset_uid")
         if doc_uid is not None:
             #IDK WHY IT IS NOT READING THESE VALUES FOR AMMETER
-            ammeter1 = float(doc.get("payload", {}).get("Ammeter", 0.0))
-            ammeter2 = float(doc.get("payload", {}).get("Ammeter 2", 0.0))
+            ammeter1 = float(doc.get("payload", {}).get("Ammeter 2", 0.0))
+            ammeter2 = float(doc.get("payload", {}).get("Ammeter", 0.0))
             ammeter3 = float(doc.get("payload", {}).get("Ammeter 3", 0.0))
 
             # Only sum up positive ammeter values, where a positive value indicates it's using electricity

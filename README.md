@@ -54,12 +54,10 @@ Step 2
 - Double check calculations and conversions (e.g. Query three only adds up positive electricity from the sensor and ignores the negative. Is this a good approach?)
 - Add units to the query results in tcp_server.py
 - Use correct units and data ranges on Dataniz sensors
-- Rewrite tcp_server.py to use binary search tree for searching the data
+- Rewrite tcp_server.py to use binary search tree for searching the metadata (DONE)
+- Refactor tcp_server.py to store query results into binary tree
 - (IMPORTANT) Use metadata for each IoT device in Dataniz to manage and process queries 
 - Update main to run the queries based on client input (DONE)
-- Connect cloud VM to run server script?
+- Connect cloud VM to run server script
 
 Step 3 (NOT DONE)
-
-Notes
-- Device names are hardcoded.

@@ -9,8 +9,8 @@ def populate_metadata(db_connection_meta):
         device_name = record.get("customAttributes", {}).get("name")
         metadata = {
             "assetUid": record.get("assetUid"),
-            # "generationDate": record.get("customAttributes", {}).get("generationDate"),
-            # "name": record.get("customAttributes", {}).get("name")
+            "generationDate": record.get("customAttributes", {}).get("generationDate"),
+            "name": record.get("customAttributes", {}).get("name")
         }
         # Only add the metadata if the device name exists
         if device_name:

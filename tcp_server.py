@@ -5,8 +5,8 @@ import datetime
 
 def populate_metadata(db_connection_meta):
     metadata_list = []
-    for record in db_connection_meta.find():
-        device_name = record.get("customAttributes", {}).get("name")
+    for record in db_connection_meta.find(): # db_connection_meta.find() queries the collection for documents matching the criteria
+        device_name = record.get("customAttributes", {}).get("name") # {} Provides a default value in case the key "customAttributes" does not exist in the record dictionary
         metadata = {
             "assetUid": record.get("assetUid"),
             "generationDate": record.get("customAttributes", {}).get("generationDate"),
@@ -17,7 +17,7 @@ def populate_metadata(db_connection_meta):
             metadata_list.append(metadata)
     return metadata_list
 
-
+# Gets the device's UID based on the provided device name
 def get_device_uid(metadata_list, device_name):
     for metadata in metadata_list:
         if metadata.get("name") == device_name:
@@ -206,16 +206,17 @@ if __name__ == "__main__":
     collection_virtual = db["Assignment 7_virtual"]
     print("Selected database and collection successfully.")
 
+    # Populate the metadata from MongoDB into a list data structure
     print("Populating metadata into a list...")
     metadata = populate_metadata(collection_metadata)
     print("Task successful.")
 
     print("Initializing Server")
     TCP_Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Create the TCP socket
-    hostname = socket.gethostname()
-    ipaddress = socket.gethostbyname(hostname)
-    TCP_Socket.bind((ipaddress, 0))  # Bind the socket to an address and available port number
-    port = TCP_Socket.getsockname()[1] # Dynamically get the port number
+    hostname = socket.gethostname() # Gets hostname
+    ipaddress = socket.gethostbyname(hostname) # Gets the IP address
+    TCP_Socket.bind((ipaddress, 0))  # Bind the socket to an address and available port number. 0 gets any available port number.
+    port = TCP_Socket.getsockname()[1] # Extracts the port number after the port number and ipaddress are binded.
     print(f"Server is running on IP {ipaddress} and Port {port}")
     TCP_Socket.listen(5)  # Allows the server to listen for any incoming connections
     print("Server is listening..")

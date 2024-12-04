@@ -38,25 +38,3 @@ python3 tcp_client.py
 
 * Cathleen Vu [@cdvu0] (https://github.com/cdv0)
 * Eric Hong
-
-
-
-
-
-
-TO DO:
-
-Step 1 (DONE)
-
-Step 2 
-- Units and conversions (Use fahrenheit for temperature, PST instead of UTC, etc.) (see assignment for more)
-    - Note: Database stores timestamp in UTC
-- Double check calculations and conversions (e.g. Query three only adds up positive electricity from the sensor and ignores the negative. Is this a good approach?)
-- Add units to the query results in tcp_server.py
-- Use correct units and data ranges on Dataniz sensors
-- Organize code into list (DONE)
-- (IMPORTANT) Use metadata for each IoT device in Dataniz to manage and process queries (Done?)
-- Update main to run the queries based on client input (DONE)
-- Connect cloud VM to run server script
-
-Step 3 (NOT DONE)
